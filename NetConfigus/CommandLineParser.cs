@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 
 namespace NetConfigus;
 
@@ -19,6 +20,67 @@ public static class CommandLineParser
         public required CommandLineAttribute Attribute { get; set; }
         public bool IsSet { get; set; }
         public Type Type => Property.PropertyType;
+    }
+
+    /// <summary>
+    /// Загружает параметры конфигурации из файла и/или командной строки.
+    /// </summary>
+    /// <typeparam name="T">Тип объекта конфигурации, должен иметь конструктор по умолчанию.</typeparam>
+    /// <param name="fn">Путь к файлу конфигурации (JSON). Если null или файл не найден, используется объект по умолчанию.</param>
+    /// <param name="args">Аргументы командной строки для парсинга. Если null, парсинг не выполняется.</param>
+    /// <param name="isConfigFileRequired">Если true, выбрасывает исключение при отсутствии файла конфигурации.</param>
+    /// <exception cref="Exception">Если файл конфигурации обязателен, но не найден.</exception>
+    /// <exception cref="ArgumentException">При ошибках в аргументах командной строки или отсутствии обязательных параметров.</exception>
+    /// <exception cref="InvalidOperationException">При конфликте заполнения параметров.</exception>
+    /// <exception cref="FormatException">При ошибках преобразования типов параметров.</exception>
+    /// <remarks>
+    /// Сначала загружает параметры из файла, затем из переменных среды, затем из командной строки.
+    /// </remarks>
+
+    public static void Load<T>(string? fn, string[]? args, bool isConfigFileRequired = false) where T : class, new()
+    {
+        if (isConfigFileRequired && !File.Exists(fn))
+            throw new Exception("Configuration file not found!");
+
+        T options;
+        if (File.Exists(fn))
+            options = JsonSerializer.Deserialize<T>(File.ReadAllText(fn)) ?? new T();
+        else
+            options = new T();
+
+        List<PropertyData> properties = GetProperties(options);
+        ValidateProperties(properties);
+
+        ParseEnvironmen(options, properties);
+
+        if (args != null)
+            Parse(options, args, properties);
+    }
+
+    /// <summary>
+    /// Заполняет свойства объекта конфигурации значениями из переменных среды.
+    /// </summary>
+    /// <typeparam name="T">Тип объекта конфигурации.</typeparam>
+    /// <param name="options">Экземпляр объекта конфигурации для заполнения.</param>
+    /// <param name="properties">Список метаданных свойств, полученных через атрибуты.</param>
+    /// <remarks>
+    /// Для каждого свойства, у которого задано имя переменной среды, устанавливает значение из соответствующей переменной среды.
+    /// Если переменная среды отсутствует или пуста, свойство не изменяется.
+    /// </remarks>
+    /// <exception cref="FormatException">
+    /// Возникает при ошибке преобразования значения переменной среды к типу свойства.
+    /// </exception>
+    private static void ParseEnvironmen<T>(T options, List<PropertyData> properties) where T : class, new()
+    {
+        foreach (var prop in properties)
+        {
+            if (string.IsNullOrWhiteSpace(prop.Attribute.EnvironmentVariableName)) continue;
+            var evnVal = Environment.GetEnvironmentVariable(prop.Attribute.EnvironmentVariableName);
+            if (string.IsNullOrWhiteSpace(evnVal)) continue;
+            object convertedValue = ConvertValue(evnVal, prop.Type);
+            prop.Property.SetValue(options, convertedValue);
+            prop.IsSet = true;
+        }
     }
 
     /// <summary>
@@ -53,6 +115,19 @@ public static class CommandLineParser
         List<PropertyData> properties = GetProperties(options);
         ValidateProperties(properties);
 
+        Parse(options, args, properties);
+    }
+
+
+    /// <summary>
+    /// Парсит аргументы командной строки и заполняет свойства объекта
+    /// </summary>
+    /// <typeparam name="T">Тип объекта с параметрами</typeparam>
+    /// <param name="options">Экземпляр объекта для заполнения</param>
+    /// <param name="args">Аргументы командной строки</param>  
+    /// <param name="properties">Массив свойств</param>  
+    private static void Parse<T>(T options, string[] args, List<PropertyData> properties) where T : class
+    {
         var (positionalArgs, namedArgs) = SplitArguments(args);
         ProcessPositionalArguments(options, properties, positionalArgs);
         ProcessNamedArguments(options, properties, namedArgs);

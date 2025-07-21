@@ -25,6 +25,10 @@ namespace NetConfigus
         /// </summary>
         public string? Description { get; set; }
         /// <summary>
+        /// Имя значения из переменной среды
+        /// </summary>
+        public string? EnvironmentVariableName { get; set; }
+        /// <summary>
         /// Обязательность параметра (по умолчанию false)
         /// </summary>
         public bool Required { get; set; } = false;

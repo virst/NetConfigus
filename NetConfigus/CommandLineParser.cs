@@ -40,7 +40,7 @@ public static class CommandLineParser
     /// Сначала загружает параметры из файла, затем из переменных среды, затем из командной строки.
     /// </remarks>
 
-    public static void Load<T>(string? fn, string[]? args, bool isConfigFileRequired = false) where T : class, new()
+    public static T Load<T>(string? fn, string[]? args, bool isConfigFileRequired = false) where T : class, new()
     {
         if (isConfigFileRequired && !File.Exists(fn))
             throw new Exception("Configuration file not found!");
@@ -58,6 +58,8 @@ public static class CommandLineParser
 
         if (args != null)
             Parse(options, args, properties);
+
+        return options;
     }
 
     /// <summary>

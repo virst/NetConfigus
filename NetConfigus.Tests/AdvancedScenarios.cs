@@ -12,10 +12,10 @@ namespace NetConfigus.Tests
         public class ComplexConfig
         {
             [CommandLine(Position = 0, Required = true)]
-            public string Source { get; set; }
+            public string Source { get; set; } = default!;
 
             [CommandLine(Position = 1)]
-            public string Destination { get; set; }
+            public string Destination { get; set; } = default!;
 
             [CommandLine(ShortName = 'b')]
             public bool Backup { get; set; }
@@ -24,7 +24,7 @@ namespace NetConfigus.Tests
             public int ThreadCount { get; set; }
 
             [CommandLine(ShortName = 'l')]
-            public string[] Logs { get; set; }
+            public string[] Logs { get; set; } = [];
         }
 
         [Fact]
@@ -57,10 +57,10 @@ namespace NetConfigus.Tests
         public class IgnoredPositionals
         {
             [CommandLine(Position = 0)]
-            public string A { get; set; }
+            public string A { get; set; } = default!;
 
             [CommandLine(Position = 1)]
-            public string B { get; set; }
+            public string B { get; set; } = default!;
         }
 
         [Fact]

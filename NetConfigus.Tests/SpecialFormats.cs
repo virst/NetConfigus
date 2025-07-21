@@ -31,7 +31,7 @@ namespace NetConfigus.Tests
         public class EmptyValue
         {
             [CommandLine(ShortName = 'c')]
-            public string Config { get; set; }
+            public string Config { get; set; } = default!;
         }
 
         [Fact]

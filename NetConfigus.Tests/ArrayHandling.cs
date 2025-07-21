@@ -12,7 +12,7 @@ namespace NetConfigus.Tests
         public class StringArray
         {
             [CommandLine(ShortName = 'i')]
-            public string[] Inputs { get; set; }
+            public string[] Inputs { get; set; } = [];
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace NetConfigus.Tests
         public class IntArray
         {
             [CommandLine(LongName = "values")]
-            public int[] Values { get; set; }
+            public int[] Values { get; set; } = default!;
         }
 
         [Fact]

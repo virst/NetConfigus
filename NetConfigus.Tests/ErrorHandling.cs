@@ -12,7 +12,7 @@ namespace NetConfigus.Tests
         public class RequiredParam
         {
             [CommandLine(Position = 0, Required = true)]
-            public string Target { get; set; }
+            public string Target { get; set; } = default!;
         }
 
         [Fact]
@@ -26,7 +26,7 @@ namespace NetConfigus.Tests
         public class ConflictParam
         {
             [CommandLine(Position = 0, ShortName = 'f')]
-            public string File { get; set; }
+            public string File { get; set; } = default!;
 
         }
 

@@ -11,11 +11,11 @@ namespace NetConfigus;
 public static class CommandLineParser
 {
     /// <summary>
-/// Внутренний класс для хранения метаданных свойства
-/// </summary>
+    /// Внутренний класс для хранения метаданных свойства
+    /// </summary>
     private class PropertyData
     {
-        public required  PropertyInfo Property { get; set; }
+        public required PropertyInfo Property { get; set; }
         public required CommandLineAttribute Attribute { get; set; }
         public bool IsSet { get; set; }
         public Type Type => Property.PropertyType;
@@ -64,6 +64,7 @@ public static class CommandLineParser
     /// </summary>
     private static List<PropertyData> GetProperties<T>(T options)
     {
+#pragma warning disable CS8601 // Возможно, назначение-ссылка, допускающее значение NULL.
         return typeof(T)
             .GetProperties()
             .Where(p => p.IsDefined(typeof(CommandLineAttribute), false))
@@ -74,6 +75,7 @@ public static class CommandLineParser
                 IsSet = false
             })
             .ToList();
+#pragma warning restore CS8601 // Возможно, назначение-ссылка, допускающее значение NULL.
     }
 
     /// <summary>
@@ -178,7 +180,7 @@ public static class CommandLineParser
             if (!isLong && !isShort) continue;
 
             string key;
-            string value = null;
+            string? value = null;
             int separatorIndex;
 
             if (isLong)
@@ -210,7 +212,7 @@ public static class CommandLineParser
                 }
             }
 
-            PropertyData property = FindProperty(properties, key, isLong);
+            var property = FindProperty(properties, key, isLong);
             if (property == null) continue;
 
             if (property.Type == typeof(bool) && value == null)
@@ -232,7 +234,7 @@ public static class CommandLineParser
     /// Находит свойство по имени параметра
     /// </summary>
     /// <returns>Найденное свойство или null</returns>
-    private static PropertyData FindProperty(
+    private static PropertyData? FindProperty(
         List<PropertyData> properties, string key, bool isLong)
     {
         StringComparison comparison = StringComparison.OrdinalIgnoreCase;
@@ -244,7 +246,7 @@ public static class CommandLineParser
                 return p.Attribute.LongName != null &&
                        p.Attribute.LongName.Equals(key, comparison);
             }
-            return p.Attribute.ShortName != null &&
+            return p.Attribute.ShortName != '\0' &&
                    p.Attribute.ShortName.ToString().Equals(key, comparison);
         });
     }
@@ -303,7 +305,7 @@ public static class CommandLineParser
 
         if (targetType.IsArray)
         {
-            return ConvertValue(value, targetType.GetElementType());
+            return ConvertValue(value, targetType.GetElementType() ?? throw new Exception("Nellable Element Type"));
         }
 
         throw new NotSupportedException(
@@ -316,11 +318,11 @@ public static class CommandLineParser
     private static void HandleArrayValue<T>(
         T options, PropertyData property, object value)
     {
-        Array current = (Array)property.Property.GetValue(options);
+        var current = property.Property.GetValue(options) as Array;
         int newLength = current?.Length + 1 ?? 1;
 
-        Array newArray = Array.CreateInstance(
-            property.Type.GetElementType(),
+        var newArray = Array.CreateInstance(
+            property.Type.GetElementType() ?? throw new Exception("Nellable Element Type"),
             newLength
         );
 

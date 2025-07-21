@@ -12,7 +12,7 @@ namespace NetConfigus.Tests
         public class SinglePositional
         {
             [CommandLine(Position = 0)]
-            public string Source { get; set; }
+            public string Source { get; set; } = default!;
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace NetConfigus.Tests
         public class SingleNamedLong
         {
             [CommandLine(LongName = "output")]
-            public string Output { get; set; }
+            public string Output { get; set; } = default!;
         }
 
         [Fact]

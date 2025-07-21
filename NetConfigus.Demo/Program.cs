@@ -17,7 +17,7 @@ class Program
 
         string[] prm = ["input.txt", "output.txt", "-v", "--threads = 4"];
         var options = new ApplicationOptions();
-        CommandLineParser.Parse(options, args);
+        CommandLineParser.Parse(options, prm);
         Console.WriteLine(options);
     }
     static void App(string[] args)

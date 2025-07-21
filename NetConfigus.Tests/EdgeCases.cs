@@ -28,7 +28,7 @@ namespace NetConfigus.Tests
         public class StringEdgeCases
         {
             [CommandLine(Position = 0)]
-            public string Path { get; set; }
+            public string Path { get; set; } = default!;
         }
 
         [Theory]

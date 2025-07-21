@@ -26,10 +26,10 @@ namespace NetConfigus.Tests
         public class DuplicatePositions
         {
             [CommandLine(Position = 0)]
-            public string A { get; set; }
+            public string A { get; set; } = default!;
 
             [CommandLine(Position = 0)]
-            public string B { get; set; }
+            public string B { get; set; } = default!;
         }
 
         [Fact]

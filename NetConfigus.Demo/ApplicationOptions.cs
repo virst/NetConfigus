@@ -10,11 +10,11 @@ namespace NetConfigus.Demo
     {
         // Обязательный позиционный аргумент (исходный файл)
         [CommandLine(Position = 0, Description = "Source file path", Required = true)]
-        public string SourceFile { get; set; }
+        public string SourceFile { get; set; } = default!;
 
         // Опциональный позиционный аргумент (выходной файл)
         [CommandLine(Position = 1, Description = "Destination file path")]
-        public string DestinationFile { get; set; }
+        public string DestinationFile { get; set; } = default!;
 
         // Флаг (булево значение)
         [CommandLine(ShortName = 'v', LongName = "verbose", Description = "Enable verbose output")]
@@ -26,7 +26,7 @@ namespace NetConfigus.Demo
 
         // Параметр с несколькими значениями
         [CommandLine(ShortName = 'i', LongName = "include", Description = "Files to include")]
-        public string[] IncludePatterns { get; set; }
+        public string[] IncludePatterns { get; set; } = [];
 
         public override string ToString()
         {

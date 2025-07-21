@@ -12,7 +12,7 @@ namespace NetConfigus.Tests
         public class PositionalAndNamed
         {
             [CommandLine(Position = 0)]
-            public string Source { get; set; }
+            public string Source { get; set; } = default!;
 
             [CommandLine(ShortName = 'b')]
             public bool Backup { get; set; }
@@ -33,7 +33,7 @@ namespace NetConfigus.Tests
             public int Threads { get; set; }
 
             [CommandLine(LongName = "log")]
-            public string LogLevel { get; set; }
+            public string LogLevel { get; set; } = default!;
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace NetConfigus.Tests
         public class MixedFormats
         {
             [CommandLine(ShortName = 's')]
-            public string Size { get; set; }
+            public string Size { get; set; } = default!;
 
             [CommandLine(LongName = "color")]
             public bool Color { get; set; }

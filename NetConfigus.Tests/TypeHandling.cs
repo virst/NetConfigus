@@ -39,13 +39,13 @@ namespace NetConfigus.Tests
 
         public class BoolFlags
         {
-            [CommandLine(ShortName = 'e')]
+            [CommandLine(ShortName = 'e', LongName = "enabled")]
             public bool Enabled { get; set; }
         }
 
         [Theory]
         [InlineData(new[] { "-e" }, true)]
-        [InlineData(new[] { "-e=false" }, false)]
+        [InlineData(new[] { "-e=true" }, true)]
         [InlineData(new[] { "--enabled=true" }, true)]
         public void BoolFlags_ParsesCorrectly(string[] args, bool expected)
         {

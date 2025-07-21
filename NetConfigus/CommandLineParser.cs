@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
@@ -21,6 +22,8 @@ public static class CommandLineParser
         public bool IsSet { get; set; }
         public Type Type => Property.PropertyType;
     }
+
+    private static CultureInfo enUsFormat = new CultureInfo("en-US");
 
     /// <summary>
     /// Загружает параметры конфигурации из файла и/или командной строки.
@@ -168,6 +171,12 @@ public static class CommandLineParser
                 throw new InvalidOperationException(
                     $"Boolean property '{prop.Property.Name}' cannot use Position");
             }
+
+            if (prop.Attribute.Position > -1 && properties.Count(p => p.Attribute.Position == prop.Attribute.Position) > 1)
+            {
+                throw new InvalidOperationException(
+                    $"Several properties are competing for position {prop.Attribute.Position}");
+            }
         }
     }
 
@@ -288,7 +297,21 @@ public static class CommandLineParser
             }
 
             var property = FindProperty(properties, key, isLong);
-            if (property == null) continue;
+            if (property == null)
+            {
+                if (!isLong)
+                {
+                    var boolPropertys = key.Select(c => FindProperty(properties, c.ToString(), isLong))
+                        .Where(p => p?.Type == typeof(bool)).ToArray();
+                    if (boolPropertys.Length == key.Length)
+                        foreach (var prop in boolPropertys)
+                            if (prop != null)
+                                SetPropertyValue(options, prop, "true", isPositional: false);
+
+                }
+
+                continue;
+            }
 
             if (property.Type == typeof(bool) && value == null)
             {
@@ -376,7 +399,7 @@ public static class CommandLineParser
         if (targetType == typeof(string)) return value;
         if (targetType == typeof(int)) return int.Parse(value);
         if (targetType == typeof(bool)) return bool.Parse(value);
-        if (targetType == typeof(double)) return double.Parse(value);
+        if (targetType == typeof(double)) return double.Parse(value, enUsFormat);
 
         if (targetType.IsArray)
         {

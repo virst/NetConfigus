@@ -9,7 +9,7 @@
 		<Version>0.8.6</Version>
 		<Authors>virst</Authors>
 		<Description>
-			NetConfigus универсальный парсер конфигурации для .NET
+			NetConfigus упрощает жизнь разработчика, предоставляя единый интерфейс для работы с разными источниками конфигурации с минимальным количеством кода.
 		</Description>
 		<RepositoryUrl>https://github.com/virst/NetConfigus</RepositoryUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
